@@ -1,0 +1,4 @@
+*.a
+*.bin
+*.sha256
+network_info

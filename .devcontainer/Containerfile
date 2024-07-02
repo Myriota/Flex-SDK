@@ -1,0 +1,35 @@
+FROM mcr.microsoft.com/devcontainers/base:ubuntu-22.04
+MAINTAINER Myriota
+
+ENV LC_ALL=C.UTF-8
+ENV LANG=C.UTF-8
+ENV TZ 'Australia/Adelaide'
+RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update
+RUN apt-get -y install \
+  git \
+  curl \
+  xxd \
+  meson \
+  ninja-build \
+  gcc \
+  python3 \
+  python3-pip \
+  python-is-python3
+
+RUN echo $TZ > /etc/timezone
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime
+
+
+RUN mkdir -p /opt/gcc-arm && \
+    curl -o /opt/gcc-arm/gcc-arm-none-eabi-7-2017-q4-major-linux.tar.bz2 https://downloads.myriota.com/gcc-arm-none-eabi-7-2017-q4-major-linux.tar.bz2 && \
+    tar -xjvf /opt/gcc-arm/gcc-arm-none-eabi-7-2017-q4-major-linux.tar.bz2 -C /opt/gcc-arm --strip-components=1 && \
+    rm /opt/gcc-arm/gcc-arm-none-eabi-7-2017-q4-major-linux.tar.bz2
+ENV PATH="${PATH}:/opt/gcc-arm/bin"
+
+COPY requirements.txt .
+RUN pip3 install -r requirements.txt
+ENV PATH="${PATH}:${PWD}/subprojects/flex-sdk/bin"

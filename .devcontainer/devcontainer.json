@@ -1,0 +1,9 @@
+{
+    "build": {
+      "dockerfile": "./Containerfile",
+      "context": "../"
+    },
+    "remoteEnv": {
+        "PATH": "${containerEnv:PATH}:${containerWorkspaceFolder}/subprojects/flex-sdk/bin:/opt/gcc-arm/bin"
+    }
+}

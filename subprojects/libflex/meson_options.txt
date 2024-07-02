@@ -1,0 +1,4 @@
+option('skip_gnss', type : 'boolean', value : false,
+        description: 'Disable GNSS sync task and use default location',
+        yield: true,
+)
