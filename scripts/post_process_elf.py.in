@@ -1,0 +1,53 @@
+#!/usr/bin/env python3
+
+import sys
+import argparse
+import subprocess
+
+def main():
+  objcopy = '@objcopy@'
+  merge_binary = '@merge_binary@'
+  build_key_file = '@build_key_file@'
+  network_info_file = '@network_info_file@'
+
+  parser = argparse.ArgumentParser()
+  parser.add_argument('user_application_elf')
+  parser.add_argument('user_application_raw_bin')
+  parser.add_argument('user_application_build_key_bin')
+  parser.add_argument('user_application_merged_bin')
+  args = parser.parse_args()
+
+  user_application_elf = args.user_application_elf
+  user_application_raw_bin = args.user_application_raw_bin
+  user_application_build_key_bin = args.user_application_build_key_bin
+  user_application_merged_bin = args.user_application_merged_bin
+
+  result = subprocess.run([objcopy, '-O', 'binary', '-S', user_application_elf,
+    user_application_raw_bin])
+  if result.returncode != 0:
+    sys.exit('Failed to strip the elf!')
+
+  # Read in build key
+  build_key_bytes = None
+  with open(build_key_file, "r") as file:
+    line = file.readline()
+    build_key = line.strip().split(' ')[1]
+    build_key_bytes = bytearray.fromhex(build_key)
+
+  # Append build key to user_application.bin
+  with open(user_application_build_key_bin, "wb") as fout:
+    #fout.write(build_key_bytes)
+    with open(user_application_raw_bin, "rb") as fin:
+      content = fin.read()
+      content_byte_array = bytearray(content)
+      for i in range(len(build_key_bytes)):
+        content_byte_array[i] = build_key_bytes[i]
+      fout.write(content_byte_array)
+
+  result = subprocess.run([merge_binary, '-n', network_info_file, '-u',
+    user_application_build_key_bin, '-o', user_application_merged_bin])
+  if result.returncode != 0:
+    sys.exit('Failed to merge the network info and user application!')
+
+if __name__ == "__main__":
+    main()

@@ -19,6 +19,8 @@
 #include <stdint.h>
 #include <time.h>
 
+#include "flex_errors.h"
+
 /// @defgroup Version_Info Version Information
 /// Flex Library versioning information.
 ///@{
@@ -50,22 +52,34 @@ typedef enum {
 
 /// Initialise the Analog Input in Voltage or Current mode.
 /// \param[in] InputMode the operation mode selected from \p FLEX_AnalogInputMode.
-/// \return 0 if succeeded and -1 if failed.
+/// \return FLEX_SUCCESS (0) if succeeded and < 0 if failed.
+/// \retval -FLEX_ERROR_IO_EXPANDER: failed to initialise i/o expander device.
+/// \retval -FLEX_ERROR_POWER_OUT: failed to enable power to analog input interface.
 int FLEX_AnalogInputInit(const FLEX_AnalogInputMode InputMode);
 /// De-initialise the Analog Input interface.
-/// \return 0 if succeeded and -1 if failed.
+/// \return FLEX_SUCCESS (0) if succeeded and < 0 if failed.
+/// \retval -FLEX_ERROR_IO_EXPANDER: failed to de-initialise i/o expander device.
+/// \retval -FLEX_ERROR_POWER_OUT: failed to disable power to analog input interface.
 int FLEX_AnalogInputDeinit(void);
 /// Get the Current reading in micro-amps from the Analog Input interface.
 /// The Analog Input interface needs to be initialised in Current mode
 /// before performing a Current reading.
 /// \param[out] pMicroAmps the Current reading in uA.
-/// \return 0 if succeeded and -1 if failed.
+/// \return FLEX_SUCCESS (0) if succeeded and < 0 if failed.
+/// \retval -FLEX_ERROR_EINVAL: pMicroAmps is a NULL parameter
+/// \retval -FLEX_ERROR_EOPNOTSUPP: Analog input set to incorrect state (i.e trying
+///         to read current when init to voltage mode)
+/// \retval -FLEX_ERROR_READ_FAIL: Error reading from ADC device
 int FLEX_AnalogInputReadCurrent(uint32_t *const pMicroAmps);
 /// Get the Voltage reading in milli-volts from the Analog Input interface.
 /// The Analog Input interface needs to be initialised in Voltage mode
 /// before performing a Voltage reading.
 /// \param[out] pMilliVolts the Voltage reading in mV.
-/// \return 0 if succeeded and -1 if failed.
+/// \return FLEX_SUCCESS (0) if succeeded and < 0 if failed.
+/// \retval -FLEX_ERROR_EINVAL: pMilliVolts is a NULL parameter
+/// \retval -FLEX_ERROR_EOPNOTSUPP: Analog input set to incorrect state (i.e trying
+///         to read voltage when init to current mode)
+/// \retval -FLEX_ERROR_READ_FAIL: Error reading from ADC device
 int FLEX_AnalogInputReadVoltage(uint32_t *const pMilliVolts);
 
 ///@}
@@ -83,10 +97,15 @@ typedef enum {
 
 /// Enable and sets the Output Voltage of the Boost PSU.
 /// \param[in] Voltage the required output voltage selected from \p FLEX_PowerOut.
-/// \return 0 if succeeded and -1 if failed.
+/// \return FLEX_SUCCESS (0) if succeeded and < 0 if failed.
+/// \retval -FLEX_ERROR_EALREADY: already initialised
+/// \retval -FLEX_ERROR_IO_EXPANDER: failed to initialise or configure expander device
+/// \retval -FLEX_ERROR_EOPNOTSUPP: tried to set invalid power out value
+/// \retval -FLEX_ERROR_PWM: failed to setup or configure pwm device
 int FLEX_PowerOutInit(const FLEX_PowerOut Voltage);
 /// Disable the Boost PSU.
-/// \return 0 if succeeded and -1 if failed.
+/// \return FLEX_SUCCESS (0) if succeeded and < 0 if failed.
+/// \retval -FLEX_ERROR_IO_EXPANDER: failed to configure expander device
 int FLEX_PowerOutDeinit(void);
 
 ///@}
@@ -103,7 +122,8 @@ typedef enum {
 
 /// Change the state of the Green LED.
 /// \param[in] LEDState the required LED state selected from \p FLEX_LEDState.
-/// \return 0 if succeeded and -1 if failed.
+/// \return FLEX_SUCCESS (0) if succeeded and < 0 if failed.
+/// \retval -FLEX_ERROR_IO_EXPANDER: failed to initialise or configure expander device
 int FLEX_LEDGreenStateSet(const FLEX_LEDState LEDState);
 
 ///@}
@@ -127,11 +147,16 @@ typedef enum {
 /// Set the level of an external Digital I/O pin High or Low.
 /// \param[in] PinNum the external Digital I/O pin number.
 /// \param[in] Level the required Digital I/O level for the selected pin.
-/// \return 0 if succeeded and -1 if failed.
+/// \return FLEX_SUCCESS (0) if succeeded and < 0 if failed.
+/// \retval -FLEX_ERROR_IO_EXPANDER: failed to initialise or configure expander device
+/// \retval -FLEX_ERROR_EINVAL: Invalid level parameter
+/// \retval -FLEX_ERROR_I2C: Error with i2c device when setting IO
 int FLEX_ExtDigitalIOSet(const FLEX_DigitalIOPin PinNum, const FLEX_DigitalIOLevel Level);
 /// Get the level of an External Digital I/O pin.
 /// \param[in] PinNum the external Digital I/O pin number.
-/// \return \p FLEX_DigitalIOLevel if succeeded and -1 if failed.
+/// \return FLEX_DigitalIOLevel if succeeded and < 0 if failed.
+/// \retval -FLEX_ERROR_IO_EXPANDER: failed to initialise or configure expander device
+/// \retval -FLEX_ERROR_GPIO: Error with GPIO device when setting IO
 int FLEX_ExtDigitalIOGet(const FLEX_DigitalIOPin PinNum);
 
 /// External Digital I/O Wakeup Modify Actions
@@ -144,7 +169,8 @@ typedef enum {
 /// This wakeups on a falling edge of the External Digital IO.
 /// \param[in] PinNum the external Digital I/O pin number.
 /// \param[in] Action Enable/Disable wakeup for the selected Digital I/O pin.
-/// \return 0 if succeeded and -1 if failed.
+/// \return FLEX_SUCCESS (0) if succeeded and < 0 if failed.
+/// \retval -FLEX_ERROR_GPIO: Error with GPIO device when setting IO
 int FLEX_ExtDigitalIOWakeupModify(const FLEX_DigitalIOPin PinNum,
   const FLEX_ExtDigitalIOWakeupModifyAction Action);
 
@@ -163,7 +189,9 @@ typedef void (*FLEX_IOWakeupHandler)(void);
 /// the external Digital I/O pin.
 /// \param[in] Handler function pointer of the external Digital I/O wakeup handler.
 /// \param[in] Action Add/Remove the input IO wakeup handler.
-/// \return 0 if succeeded and -1 if failed.
+/// \return FLEX_SUCCESS (0) if succeeded and < 0 if failed.
+/// \retval -FLEX_ERROR_EALREADY: handler already exists, remove first
+/// \retval -FLEX_ERROR_EINVAL: attempt to remove non-existant handler
 int FLEX_ExtDigitalIOWakeupHandlerModify(const FLEX_IOWakeupHandler Handler,
   const FLEX_ExtDigitalIOWakeupHandlerModifyAction Action);
 
@@ -177,7 +205,11 @@ int FLEX_ExtDigitalIOWakeupHandlerModify(const FLEX_IOWakeupHandler Handler,
 /// \param[in] Address the peripheral device address.
 /// \param[in] TxData pointer to the TX buffer containing registers address and command.
 /// \param[in] TxLength length of data to be sent.
-/// \return 0 if succeeded and -1 if failed.
+/// \return FLEX_SUCCESS (0) if succeeded and < 0 if failed.
+/// \retval -FLEX_ERROR_EINVAL: invalid i2c address (address in use by internal device)
+/// \retval -FLEX_ERROR_IO_EXPANDER: failed to initialise or configure expander device
+/// \retval -FLEX_ERROR_POWER_OUT: failed to power on external i2c bus
+/// \retval -FLEX_ERROR_I2C: error initialising i2c bus
 int FLEX_ExtI2CWrite(int Address, const uint8_t *const TxData, uint16_t TxLength);
 
 /// Write to a an i2c device at a given address and then read the response.
@@ -186,7 +218,11 @@ int FLEX_ExtI2CWrite(int Address, const uint8_t *const TxData, uint16_t TxLength
 /// \param[in] TxLength length of data to be sent.
 /// \param[out] RxData pointer to the RX buffer.
 /// \param[in] RxLength length of data to be received.
-/// \return 0 if succeeded and -1 if failed.
+/// \return FLEX_SUCCESS (0) if succeeded and < 0 if failed.
+/// \retval -FLEX_ERROR_EINVAL: invalid i2c address (address in use by internal device)
+/// \retval -FLEX_ERROR_IO_EXPANDER: failed to initialise or configure expander device
+/// \retval -FLEX_ERROR_POWER_OUT: failed to power on external i2c bus
+/// \retval -FLEX_ERROR_I2C: error initialising i2c bus
 int FLEX_ExtI2CRead(int Address, const uint8_t *const TxData, uint16_t TxLength,
   uint8_t *const RxData, uint16_t RxLength);
 
@@ -206,20 +242,27 @@ typedef enum {
 /// Note that both RS-485 and RS-232 cannot be initialised at the same time.
 /// \param[in] Protocol required protocol for serial communication.
 /// \param[in] BaudRate required baudrate.
-/// \return 0 if succeeded and -1 if failed.
+/// \return FLEX_SUCCESS (0) if succeeded and < 0 if failed.
+/// \retval -FLEX_ERROR_EALREADY: device already initialised
+/// \retval -FLEX_ERROR_IO_EXPANDER: failed to initialise or configure expander device
+/// \retval -FLEX_ERROR_SERIAL: failed to initialise serial device
+/// \retval -FLEX_ERROR_POWER_OUT: failed to enable power to serial interface
 int FLEX_SerialInit(FLEX_SerialProtocol Protocol, uint32_t BaudRate);
 /// Write to the serial interface synchronously.
 /// \param[in] Tx pointer to the transmit buffer to be sent.
 /// \param[in] Length length of data to be sent.
-/// \return 0 if succeeded and -1 if failed.
+/// \return FLEX_SUCCESS (0) if succeeded and < 0 if failed.
+/// \retval -FLEX_ERROR_NOT_INIT: device not initialised
 int FLEX_SerialWrite(const uint8_t *Tx, size_t Length);
 /// Read from input buffer of the serial interface. The buffer size is 50 bytes.
 /// \param[out] Rx pointer to the receive buffer.
 /// \param[in] Length length of the receive buffer.
-/// \return number of bytes read back and -1 if read failed.
+/// \return number of bytes read back or < 0 if read failed.
+/// \retval -FLEX_ERROR_NOT_INIT: device not initialised
 int FLEX_SerialRead(uint8_t *Rx, size_t Length);
 /// Deinitialise the serial interface.
-/// \return 0 if succeeded and -1 if failed.
+/// \return FLEX_SUCCESS (0) if succeeded and < 0 if failed.
+/// \retval -FLEX_ERROR_POWER_OUT: failed to disable power to serial interface
 int FLEX_SerialDeinit(void);
 
 ///@}
@@ -244,13 +287,12 @@ typedef enum {
 /// count on rising edge, and enable debouncing.
 /// \param[in] Limit maximum value to count to before overflow occurs and reset counter to 0.
 /// \param[in] Options configuration options selected from \p FLEX_PulseCounterOption.
-/// \return 0 if succeeded and -1 if failed.
+/// \return FLEX_SUCCESS (0) if succeeded and < 0 if failed.
 int FLEX_PulseCounterInit(const uint32_t Limit, const uint32_t Options);
 /// Get the total count of the pulse counter.
 /// \return the total count.
 uint64_t FLEX_PulseCounterGet(void);
 /// De-initialise the pulse counter.
-/// \return none.
 void FLEX_PulseCounterDeinit(void);
 
 /// PCNT Wakeup Handler Modify Actions
@@ -266,7 +308,9 @@ typedef void (*FLEX_PCNTWakeupHandler)(void);
 /// triggered.
 /// \param[in] Handler function pointer to the Pulse Count wakeup handler.
 /// \param[in] Action Add/Remove the input Pulse Count wakeup handler.
-/// \return 0 if succeeded and -1 if failed.
+/// \return FLEX_SUCCESS (0) if succeeded and < 0 if failed.
+/// \retval -FLEX_ERROR_EALREADY: handler already exists, remove first
+/// \retval -FLEX_ERROR_EINVAL: attempt to remove non-existant handler
 int FLEX_PulseCounterHandlerModify(const FLEX_PCNTWakeupHandler Handler,
   const FLEX_PulseCounterWakeupHandlerModifyAction Action);
 
@@ -278,17 +322,14 @@ int FLEX_PulseCounterHandlerModify(const FLEX_PCNTWakeupHandler Handler,
 
 /// Delay for a number of milliseconds.
 /// \param[in] mSec delay time in milliseconds.
-/// \return none.
 void FLEX_DelayMs(const uint32_t mSec);
 /// Delay for a number of microseconds.
 /// \param[in] uSec delay time in microseconds.
-/// \return none.
 void FLEX_DelayUs(const uint32_t uSec);
 /// Put the system in lower power mode for \p Sec seconds.
 /// The calling job won't be interrupted by other jobs except for events while
 /// sleeping.
 /// \param[in] Sec sleep time in seconds.
-/// \return none.
 void FLEX_Sleep(const uint32_t Sec);
 
 ///@}
@@ -317,7 +358,9 @@ void FLEX_Sleep(const uint32_t Sec);
 /// \param[out] Lat the recorded latitude.
 /// \param[out] Lon the recorded longitude.
 /// \param[out] Time the recored fix time.
-/// \return 0 if succeeded and -1 if failed.
+/// \return FLEX_SUCCESS (0) if succeeded and < 0 if failed.
+/// \retval -FLEX_ERROR_GNSS: error on gnss device, failed to read
+/// \retval -FLEX_ERROR_POWER_OUT: failed to enable power to module
 int FLEX_GNSSFix(int32_t *const Lat, int32_t *const Lon, time_t *const Time);
 
 /// Returns true if the system has obtained a valid time and location fix.
@@ -327,7 +370,6 @@ bool FLEX_GNSSHasValidFix(void);
 /// \param[out] LastLatitude the last GNSS fixes latitude in degrees multiplied by 1e7.
 /// \param[out] LastLongitude the last GNSS fixes longitude in degrees multiplied by 1e7.
 /// \param[out] LastFixTime the time of the last GNSS fix as a epoch time.
-/// \return none.
 void FLEX_LastLocationAndLastFixTime(int32_t *const LastLatitude, int32_t *const LastLongitude,
   time_t *const LastFixTime);
 
@@ -351,21 +393,44 @@ time_t FLEX_TimeGet(void);
 /// messages. See also MessageBytesFree.
 /// \param[in] Message pointer to the message to be scheduled.
 /// \param[in] MessageSize length of the message.
-/// \return a value of >= 0 when succeeded, or <0 if failed.
-float FLEX_MessageSchedule(const uint8_t *const Message, const size_t MessageSize);
+/// \return FLEX_SUCCESS (0) if succeeded and < 0 if failed.
+int FLEX_MessageSchedule(const uint8_t *const Message, const size_t MessageSize);
 /// Returns number of bytes remaining in internal queue, that is,
 /// the number of bytes that can be scheduled with ScheduleMessage.
 /// \return number of bytes remaining in internal queue.
 size_t FLEX_MessageBytesFree(void);
 /// Save all messages in the message queue to module's persistent storage.
 /// Saved messages will be transmitted after reset.
-/// \return none.
 void FLEX_MessageSave(void);
 /// Clear all messages in the message queue.
-/// \return none.
 void FLEX_MessageQueueClear(void);
 
 ///@}
+
+/// @defgroup Device Control
+/// @{
+
+/// Message Receive Handler Modify Actions
+typedef enum {
+  FLEX_MESSAGE_RECEIVE_HANDLER_MODIFY_ADD,     ///< action to add a receive handler
+  FLEX_MESSAGE_RECEIVE_HANDLER_MODIFY_REMOVE,  ///< action to remove a receive handler
+} FLEX_MessageReceiveHandlerModifyAction;
+
+/// Message Receive Handler Function Pointer Declaration.
+/// \param message A pointer to the message if size is greater than 0 else NULL.
+/// \param size The length of received message.
+typedef void (*FLEX_MessageReceiveHandler)(uint8_t *const message, const int size);
+
+/// Add or remove a handler that will be called when a message is received.
+/// \param[in] Handler function pointer to the Message Receive handler.
+/// \param[in] Action Add/Remove the input Message Receive handler.
+/// \return FLEX_SUCCESS (0) if succeeded and < 0 if failed.
+/// \retval -FLEX_ERROR_EALREADY: handler already exists, remove first
+/// \retval -FLEX_ERROR_EINVAL: attempt to remove non-existant handler
+int FLEX_MessageReceiveHandlerModify(const FLEX_MessageReceiveHandler Handler,
+  const FLEX_MessageReceiveHandlerModifyAction Action);
+
+/// @}
 
 /// @defgroup Time_Job_Scheduling Time and Job Scheduling
 /// Create and schedule jobs for the application.
@@ -377,7 +442,8 @@ typedef time_t (*FLEX_ScheduledJob)(void);
 /// Reset the schedule for an existing job or add a new job.
 /// \param[in] Job function pointer to the job to be scheduled.
 /// \param[in] Time time to run the job.
-/// \return 0 if succeeded and -1 if maximum number of jobs reached.
+/// \return FLEX_SUCCESS (0) if succeeded and < 0 if failed.
+/// \retval -FLEX_ERROR_ENOMEM:  if maximum number of jobs reached.
 int FLEX_JobSchedule(const FLEX_ScheduledJob Job, const time_t Time);
 
 /// Use this function to schedule a job to run immediately,
@@ -435,7 +501,7 @@ char *FLEX_RegistrationCodeGet(void);
 
 /// Get the temperature inside the module in degrees Celsius.
 /// \param[out] Temperature recorded temperature value in degrees Celsius.
-/// \return 0 if succeeded and -1 if failed.
+/// \return FLEX_SUCCESS (0) if succeeded and < 0 if failed.
 int FLEX_TemperatureGet(float *const Temperature);
 
 ///@}
@@ -447,7 +513,10 @@ int FLEX_TemperatureGet(float *const Temperature);
 /// Performs a Hardware test for the FlexSense. The test enables the 5V power
 /// on the external connector, and blinks the boards led from green to blue.
 /// The test block all other board functionality until push button pressed.
-/// \return 0 if succeeded and -1 if failed.
+/// \return FLEX_SUCCESS (0) if succeeded and < 0 if failed.
+/// \retval -FLEX_ERROR_POWER_OUT: unable to initialise power out or LED
+/// \retval -FLEX_ERROR_BUTTON: error enabling or disabling push button
+/// \retval -FLEX_ERROR_LED: error setting LED state
 int FLEX_HWTest(void);
 
 ///@}

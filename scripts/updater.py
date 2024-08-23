@@ -30,13 +30,6 @@ import sys
 
 version = "1.2"
 
-FLEXSENSE_USB_DEVICE_PID = 19833
-
-
-def reset_flexsense():
-    #TODO(EDGES-19)
-    print("Please reset the device manually, via plugging in and out the usb port")
-
 
 def reset_device():
     port_number = 0
@@ -69,13 +62,6 @@ def reset_device():
     except (OSError, ImportError) as e:
         print("Please reset the device", end="")
         return
-
-
-def get_usb_pid(port_name):
-    for port in serial.tools.list_ports.comports():
-        if (port.device == port_name):
-            return port.pid
-    return None
 
 
 def get_ports():
@@ -154,10 +140,7 @@ def capture_bootloader(ser, port_name, br):
     ser.close()
 
     # reset Myriota device
-    if (get_usb_pid(port_name) == FLEXSENSE_USB_DEVICE_PID):
-        reset_flexsense()
-    else:
-        reset_device()
+    reset_device()
 
     ser = open_serial_port(port_name, br)
     sys.stdout.flush()
@@ -432,6 +415,7 @@ file_types = {
     1: "system image",
     2: "user application",
     3: "network information",
+    4: "system image part 2",
 }
 
 
@@ -492,7 +476,6 @@ def append_merged_files(filename, command):
                     ]
                 )
             if ftype == 2:
-                user_app = True
                 command.append(
                     [
                         "s",
@@ -501,10 +484,17 @@ def append_merged_files(filename, command):
                     ]
                 )
             if ftype == 3:
-                network_info = True
                 command.append(
                     [
                         "o",
+                        filename + "(" + file_types.get(ftype) + ")",
+                        output_temp,
+                    ]
+                )
+            if ftype == 4:
+                command.append(
+                    [
+                        "S",
                         filename + "(" + file_types.get(ftype) + ")",
                         output_temp,
                     ]
@@ -515,11 +505,6 @@ def append_merged_files(filename, command):
 
 def main():
     global serial_port
-    global network_info
-    global user_app
-
-    network_info = False
-    user_app = False
 
     signal.signal(signal.SIGINT, signal_handler)
     try:
@@ -662,41 +647,6 @@ def main():
 
     args = parser.parse_args()
 
-    update_commands = []
-    if args.system_image_name:
-        if is_merged_binary(args.system_image_name):
-            append_merged_files(args.system_image_name, update_commands)
-        else:
-            update_commands.append(
-                ["a%x" % FIRMWARE_START_ADDRESS, args.system_image_name, None]
-            )
-    if args.user_app_name:
-        if is_merged_binary(args.user_app_name):
-            append_merged_files(args.user_app_name, update_commands)
-        else:
-            user_app = True
-            update_commands.append(["s", args.user_app_name, None])
-    if args.network_info_bin_name:
-        network_info = True
-        update_commands.append(["o", args.network_info_bin_name, None])
-    if args.merged_bin_name:
-        if is_merged_binary(args.merged_bin_name):
-            append_merged_files(args.merged_bin_name, update_commands)
-        else:
-            sys.stderr.write("Failed to extract files\n")
-            sys.exit(1)
-    if args.raw_commands is not None:
-        args.raw_commands[0].extend([None])
-        update_commands += args.raw_commands
-    if args.test_image_name:
-        update_commands.append(
-            ["a%x" % FIRMWARE_START_ADDRESS, args.test_image_name, None]
-        )
-
-    if user_app and not network_info:
-        sys.stderr.write("Need to program network info with user application\n")
-        sys.exit(1)
-
     if args.default_port_flag:
         if serial.tools.list_ports.comports():
             port_name = serial.tools.list_ports.comports()[0].device
@@ -745,6 +695,35 @@ def main():
         serial_port = capture_bootloader(serial_port, port_name, br)
         get_version(serial_port)
         sys.exit(0)
+
+    update_commands = []
+    if args.system_image_name:
+        if is_merged_binary(args.system_image_name):
+            append_merged_files(args.system_image_name, update_commands)
+        else:
+            update_commands.append(
+                ["a%x" % FIRMWARE_START_ADDRESS, args.system_image_name, None]
+            )
+    if args.user_app_name:
+        if is_merged_binary(args.user_app_name):
+            append_merged_files(args.user_app_name, update_commands)
+        else:
+            update_commands.append(["s", args.user_app_name, None])
+    if args.network_info_bin_name:
+        update_commands.append(["o", args.network_info_bin_name, None])
+    if args.merged_bin_name:
+        if is_merged_binary(args.merged_bin_name):
+            append_merged_files(args.merged_bin_name, update_commands)
+        else:
+            sys.stderr.write("Failed to extract files\n")
+            sys.exit(1)
+    if args.raw_commands is not None:
+        args.raw_commands[0].extend([None])
+        update_commands += args.raw_commands
+    if args.test_image_name:
+        update_commands.append(
+            ["a%x" % FIRMWARE_START_ADDRESS, args.test_image_name, None]
+        )
 
     if update_commands:
         serial_port = capture_bootloader(serial_port, port_name, br)

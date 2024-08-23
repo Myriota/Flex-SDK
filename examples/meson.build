@@ -1,26 +1,26 @@
-examples = [
-  'analog',
-  'blinky',
-  'event',
-  'gnss',
-  'hwtest',
-  'message',
-  'pulse_counter',
-  'rs485_rs232',
-]
+python = find_program('python3')
 
-objcopy = find_program('objcopy')
-xxd = find_program('xxd')
+examples = [
+  { 'name': 'analog', 'dir': 'analog', 'option': []},
+  { 'name': 'blinky', 'dir': 'blinky', 'option': []},
+  { 'name': 'digital', 'dir': 'digital', 'option': []},
+  { 'name': 'event', 'dir': 'event', 'option': []},
+  { 'name': 'gnss', 'dir': 'gnss', 'option': []},
+  { 'name': 'hwtest', 'dir': 'hwtest', 'option': []},
+  { 'name': 'message', 'dir': 'message', 'option': []},
+  { 'name': 'pulse_counter', 'dir': 'pulse_counter', 'option': []},
+  { 'name': 'rs232', 'dir': 'rs485_rs232', 'option': ['-DSERIAL_INTERFACE=@0@'.format(0)]},
+  { 'name': 'rs485', 'dir': 'rs485_rs232', 'option': ['-DSERIAL_INTERFACE=@0@'.format(1)]},
+]
 
 fs = import('fs')
 foreach example: examples
-  if fs.is_dir(example)
-    c_args = []
+  if fs.is_dir(example['dir'])
     c_link_args = []
-    c_files = []
-    subdir(example)
+    c_args = example['option']
+    c_files = [example['dir'] + '/main.c']
 
-    example_elf = executable(example,
+    example_elf = executable(example['name'],
         c_files,
         name_suffix: 'elf',
         c_args: c_args,
@@ -28,20 +28,15 @@ foreach example: examples
         dependencies: [ libflex_dep, ],
     )
 
-    example_bin_no_build_key = custom_target(example,
-        output : example + '.bin',
-        build_by_default : true,
-        command : [objcopy, ['-O', 'binary', '-S', example_elf.full_path(), '@OUTPUT@']],
-        depends : example_elf
-    )
-
-    example_bin = custom_target(example + '.bin',
-        output : example,
-        input: buildkey_xxd_file,
-        feed: true,
-        build_by_default : true,
-        command : [xxd, ['-r', '-', example_bin_no_build_key.full_path()]],
-        depends : example_bin_no_build_key
+    example_bin = custom_target('@0@.bin'.format(example['name']),
+        output: [
+          '@0@_raw.bin'.format(example['name']),
+          '@0@_build_key.bin'.format(example['name']),
+          '@0@.bin'.format(example['name']),
+        ],
+        input: example_elf,
+        build_by_default: true,
+        command: [python, post_process_elf, '@INPUT@', '@OUTPUT0@', '@OUTPUT1@', '@OUTPUT2@' ],
     )
   endif
 endforeach

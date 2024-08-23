@@ -35,15 +35,19 @@
 // Note: Change this to set the desired External Digital IO Pin for Wakeup.
 const FLEX_DigitalIOPin WakeupPin = FLEX_EXT_DIGITAL_IO_1;
 
-// Note: Set this to 0 to use RS-232, and 1 to use RS-485.
+#define USING_RS232 0
 #define USING_RS485 1
 
-#if USING_RS485
-#define SERIAL_INTERFACE FLEX_SERIAL_PROTOCOL_RS485
+#if SERIAL_INTERFACE == USING_RS485
+#define SERIAL_PROTOCOL FLEX_SERIAL_PROTOCOL_RS485
 #define APPLICATION_NAME "RS485 Example"
-#else
-#define SERIAL_INTERFACE FLEX_SERIAL_PROTOCOL_RS232
+
+#elif SERIAL_INTERFACE == USING_RS232
+#define SERIAL_PROTOCOL FLEX_SERIAL_PROTOCOL_RS232
 #define APPLICATION_NAME "RS232 Example"
+
+#else
+#error "Must supply a valid 'SERIAL_INTERFACE' to the build!"
 #endif
 
 // Read new line terminated string from the Serial interface with timeout
@@ -65,7 +69,7 @@ int ReadStringWithTimeout(uint8_t *Rx, size_t MaxLength) {
 }
 
 static void Comm() {
-  if (FLEX_SerialInit(SERIAL_INTERFACE, BAUDRATE) != 0) {
+  if (FLEX_SerialInit(SERIAL_PROTOCOL, BAUDRATE) != 0) {
     printf("Failed to initialise Serial interface\n");
     return;
   }

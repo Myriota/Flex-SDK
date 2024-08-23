@@ -4,9 +4,7 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
-TOOLCHAIN_FILE=gcc-arm-none-eabi-7-2017-q4-major-linux.tar.bz2
-
-mkdir -p /opt/gcc-arm
-curl -o /opt/gcc-arm/"$TOOLCHAIN_FILE" https://downloads.myriota.com/"$TOOLCHAIN_FILE"
-tar -xjvf /opt/gcc-arm/"$TOOLCHAIN_FILE" -C /opt/gcc-arm --strip-components=1
-rm /opt/gcc-arm/"$TOOLCHAIN_FILE"
+mkdir -p /opt/gcc-arm-13_2_1
+curl -L -o /opt/gcc-arm-13_2_1/arm-gnu-toolchain-13.2.rel1-x86_64-arm-none-eabi.tar.xz https://downloads.myriota.com/arm-gnu-toolchain-13.2.rel1-x86_64-arm-none-eabi.tar.xz
+tar -xvf /opt/gcc-arm-13_2_1/arm-gnu-toolchain-13.2.rel1-x86_64-arm-none-eabi.tar.xz -C /opt/gcc-arm-13_2_1 --strip-components=1
+rm /opt/gcc-arm-13_2_1/arm-gnu-toolchain-13.2.rel1-x86_64-arm-none-eabi.tar.xz

@@ -23,13 +23,12 @@ RUN apt-get -y install \
 RUN echo $TZ > /etc/timezone
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime
 
-
-RUN mkdir -p /opt/gcc-arm && \
-    curl -o /opt/gcc-arm/gcc-arm-none-eabi-7-2017-q4-major-linux.tar.bz2 https://downloads.myriota.com/gcc-arm-none-eabi-7-2017-q4-major-linux.tar.bz2 && \
-    tar -xjvf /opt/gcc-arm/gcc-arm-none-eabi-7-2017-q4-major-linux.tar.bz2 -C /opt/gcc-arm --strip-components=1 && \
-    rm /opt/gcc-arm/gcc-arm-none-eabi-7-2017-q4-major-linux.tar.bz2
-ENV PATH="${PATH}:/opt/gcc-arm/bin"
+RUN mkdir -p /opt/gcc-arm-13_2_1 && \
+    curl -L -o /opt/gcc-arm-13_2_1/arm-gnu-toolchain-13.2.rel1-x86_64-arm-none-eabi.tar.xz https://downloads.myriota.com/arm-gnu-toolchain-13.2.rel1-x86_64-arm-none-eabi.tar.xz && \
+    tar -xvf /opt/gcc-arm-13_2_1/arm-gnu-toolchain-13.2.rel1-x86_64-arm-none-eabi.tar.xz -C /opt/gcc-arm-13_2_1 --strip-components=1 && \
+    rm /opt/gcc-arm-13_2_1/arm-gnu-toolchain-13.2.rel1-x86_64-arm-none-eabi.tar.xz
+ENV PATH="${PATH}:/opt/gcc-arm-13_2_1/bin"
 
 COPY requirements.txt .
 RUN pip3 install -r requirements.txt
-ENV PATH="${PATH}:${PWD}/subprojects/flex-sdk/bin"
+ENV PATH="${PATH}:${PWD}/scripts"

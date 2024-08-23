@@ -1,7 +1,7 @@
 project(
   'flex_sdk',
   'c',
-  version: '1.0.0',
+  version: '2.0.0',
   meson_version: '>=0.61.2',
   default_options: [
     'c_std=gnu99',
@@ -25,13 +25,14 @@ endif
 libflex_dep = libflex_proj.get_variable('libflex_dep')
 system_image = libflex_proj.get_variable('system_image')
 
+python = find_program('python3')
 subdir('scripts')
 
 ####  End Flex SDK Project Boilerplate ####
 
 # If the project is being included as a subproject create the necessary
 # flex-sdk dependency. Otherwise the project is being used as a project
-# template so build the user_application in palce.
+# template so build the user_application in place.
 if meson.is_subproject()
   flex_sdk_dep = declare_dependency(
     dependencies: [
@@ -53,26 +54,16 @@ else
     ],
   )
 
-  # Strip the ELF into it's raw binary format
-  objcopy = find_program('objcopy')
-  user_application_no_buildkey = custom_target('user_application_no_buildkey',
-    output : 'user_application.bin',
-    build_by_default : true,
-    command : [objcopy, ['-O', 'binary', '-S', user_application_elf.full_path(), '@OUTPUT@']],
-    depends : user_application_elf
-  )
-
-  # Append a build key to the raw user_application
-  # WARNING: This step is required and removing the build key will cause
-  # undefined behaviour.
-  xxd = find_program('xxd')
+  # Post process the ELF into Myriota desired bin format
   user_application_bin = custom_target('user_application.bin',
-    output : 'user_application',
-    input: buildkey_xxd_file,
-    feed: true,
-    build_by_default : true,
-    command : [xxd, ['-r', '-', user_application_no_buildkey.full_path()]],
-    depends : user_application_no_buildkey
+      output: [
+        'user_application_raw.bin',
+        'user_application_build_key.bin',
+        'user_application.bin',
+      ],
+      input: user_application_elf,
+      build_by_default: true,
+      command: [python, post_process_elf, '@INPUT@', '@OUTPUT0@', '@OUTPUT1@', '@OUTPUT2@' ],
   )
 
   if get_option('examples')

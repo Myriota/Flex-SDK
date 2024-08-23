@@ -174,25 +174,17 @@ setup and build commands again.
 
 ## Programming The FlexSense
 
-Programming a FlexSense device requires the flashing of three separate
+Programming a FlexSense device requires the flashing of two separate
 images:
 
 - System Image or 'system_image.bin'
 - User Application or 'user_application.bin'
-- Network Information or 'network_info'
-
-> [!NOTE]
-> When programming the User Application you must supply a Network Information
-> this is a safety measure in case you forget to program a Network Information
-> prior to deployment.
-
 
 > [!IMPORTANT]
 > The System Image only needs to be flashed once during development or on the
 > release of a new Flex SDK. The User Application is what you
-> will be developing so update it as you need. The Network Information
-> should be fetched via the `network_info.py` script and should be programmed
-> every time you plan on deploying the device.
+> will be developing so update it as you need. If you flash the System
+> Image you must re-flash the User Application.
 
 ### Programming On Linux
 
@@ -203,18 +195,10 @@ is the project root. To program the System Image run:
 ./scripts/updater.py -f ./subprojects/libflex/system_image/system_image-*.bin
 ```
 
-To program the User Application and Network Information run:
+To program the User Application:
 
 ```shell
-./scripts/network_info.py ./ && \
-./scripts/updater.py -u ./build/user_application.bin -n ./network_info
-```
-
-To program the Network Information run:
-
-```shell
-./scripts/network_info.py ./ && \
-./scripts/updater.py -n ./network_info
+./scripts/updater.py -m ./build/user_application.bin
 ```
 
 ### Programming On Windows
@@ -226,16 +210,8 @@ is the project root. To program the System Image run:
 python .\scripts\updater.py -f .\subprojects\libflex\system_image\system_image-*.bin
 ```
 
-To program the User Application and Network Info run:
+To program the User Application run:
 
 ```shell
-python .\scripts\network_info.py .\ && \
-python .\scripts\updater.py -u .\build\user_application.bin -n .\network_info
-```
-
-To program the Network Information run:
-
-```shell
-python .\scripts\network_info.py .\ && \
-python .\scripts\updater.py -n .\network_info
+python .\scripts\updater.py -m .\build\user_application.bin
 ```

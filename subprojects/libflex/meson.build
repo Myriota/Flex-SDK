@@ -1,6 +1,6 @@
 project('libflex',
   'c',
-  version: '1.1.0',
+  version: '1.2.2',
   meson_version: '>=0.61.2'
 )
 
@@ -19,7 +19,7 @@ if not fs.exists(ldscript)
   error('Missing linker script: "@0@". Maybe you deleted it?'.format())
 endif
 
-system_image_version = '1.5.8-FlexSense'
+system_image_version = '2.0.1-FlexSense'
 system_image = '@0@/system_image/system_image-@1@.bin'.format(meson.current_source_dir(), system_image_version)
 libflex = '@0@/lib/libflex-v@1@.a'.format(meson.current_source_dir(), meson.project_version())
 foreach file: [system_image, libflex]
