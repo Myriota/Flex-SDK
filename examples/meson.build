@@ -31,7 +31,7 @@ foreach example: examples
     example_bin = custom_target('@0@.bin'.format(example['name']),
         output: [
           '@0@_raw.bin'.format(example['name']),
-          '@0@_build_key.bin'.format(example['name']),
+          '@0@.app.bin'.format(example['name']),
           '@0@.bin'.format(example['name']),
         ],
         input: example_elf,

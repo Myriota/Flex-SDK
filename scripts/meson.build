@@ -19,8 +19,12 @@ endforeach
 
 # Fetch network information
 network_info_script = find_program('network_info.py')
+network_info_cmd = [python, network_info_script, '@OUTPUT@']
+if (get_option('cold_start'))
+    network_info_cmd += ['--cold']
+endif
 network_info = configure_file(
-  command: [python, network_info_script, '@OUTPUT@'],
+  command: network_info_cmd,
   output: 'network_info',
 )
 

@@ -128,6 +128,18 @@ int FLEX_LEDGreenStateSet(const FLEX_LEDState LEDState);
 
 ///@}
 
+/// @defgroup Handler Modify Actions
+/// These actions are inputs to FlexSense APIs where handlers are modified.
+///@{
+
+/// Handler Modify Actions
+typedef enum {
+  FLEX_HANDLER_MODIFY_ADD,     ///< action to add a handler
+  FLEX_HANDLER_MODIFY_REMOVE,  ///< action to remove a handler
+} FLEX_HandlerModifyAction;
+
+///@}
+
 /// @defgroup Ext_Digital_IO External Digital I/O
 /// Configure and control the External Digital I/O interface on the FlexSense board.
 ///@{
@@ -174,14 +186,6 @@ typedef enum {
 int FLEX_ExtDigitalIOWakeupModify(const FLEX_DigitalIOPin PinNum,
   const FLEX_ExtDigitalIOWakeupModifyAction Action);
 
-/// Wakeup Handler Modify Actions
-typedef enum {
-  FLEX_DIGITAL_IO_WAKEUP_HANDLER_MODIFY_ADD,     ///< action to add an External Digital I/O wakeup
-                                                 ///< handler
-  FLEX_DIGITAL_IO_WAKEUP_HANDLER_MODIFY_REMOVE,  ///< action to remove an External Digital I/O
-                                                 ///< wakeup handler
-} FLEX_ExtDigitalIOWakeupHandlerModifyAction;
-
 /// Wakeup Handler Function Pointer Declaration.
 typedef void (*FLEX_IOWakeupHandler)(void);
 
@@ -193,7 +197,7 @@ typedef void (*FLEX_IOWakeupHandler)(void);
 /// \retval -FLEX_ERROR_EALREADY: handler already exists, remove first
 /// \retval -FLEX_ERROR_EINVAL: attempt to remove non-existant handler
 int FLEX_ExtDigitalIOWakeupHandlerModify(const FLEX_IOWakeupHandler Handler,
-  const FLEX_ExtDigitalIOWakeupHandlerModifyAction Action);
+  const FLEX_HandlerModifyAction Action);
 
 ///@}
 
@@ -295,12 +299,6 @@ uint64_t FLEX_PulseCounterGet(void);
 /// De-initialise the pulse counter.
 void FLEX_PulseCounterDeinit(void);
 
-/// PCNT Wakeup Handler Modify Actions
-typedef enum {
-  FLEX_PCNT_WAKEUP_HANDLER_MODIFY_ADD,     ///< action to add a Pulse Count wakeup handler
-  FLEX_PCNT_WAKEUP_HANDLER_MODIFY_REMOVE,  ///< action to remove a Pulse Count wakeup handler
-} FLEX_PulseCounterWakeupHandlerModifyAction;
-
 /// Wakeup Handler Function Pointer Declaration.
 typedef void (*FLEX_PCNTWakeupHandler)(void);
 
@@ -312,7 +310,7 @@ typedef void (*FLEX_PCNTWakeupHandler)(void);
 /// \retval -FLEX_ERROR_EALREADY: handler already exists, remove first
 /// \retval -FLEX_ERROR_EINVAL: attempt to remove non-existant handler
 int FLEX_PulseCounterHandlerModify(const FLEX_PCNTWakeupHandler Handler,
-  const FLEX_PulseCounterWakeupHandlerModifyAction Action);
+  const FLEX_HandlerModifyAction Action);
 
 ///@}
 
@@ -410,12 +408,6 @@ void FLEX_MessageQueueClear(void);
 /// @defgroup Device Control
 /// @{
 
-/// Message Receive Handler Modify Actions
-typedef enum {
-  FLEX_MESSAGE_RECEIVE_HANDLER_MODIFY_ADD,     ///< action to add a receive handler
-  FLEX_MESSAGE_RECEIVE_HANDLER_MODIFY_REMOVE,  ///< action to remove a receive handler
-} FLEX_MessageReceiveHandlerModifyAction;
-
 /// Message Receive Handler Function Pointer Declaration.
 /// \param message A pointer to the message if size is greater than 0 else NULL.
 /// \param size The length of received message.
@@ -428,7 +420,7 @@ typedef void (*FLEX_MessageReceiveHandler)(uint8_t *const message, const int siz
 /// \retval -FLEX_ERROR_EALREADY: handler already exists, remove first
 /// \retval -FLEX_ERROR_EINVAL: attempt to remove non-existant handler
 int FLEX_MessageReceiveHandlerModify(const FLEX_MessageReceiveHandler Handler,
-  const FLEX_MessageReceiveHandlerModifyAction Action);
+  const FLEX_HandlerModifyAction Action);
 
 /// @}
 
@@ -487,11 +479,11 @@ time_t FLEX_DaysFromNow(const unsigned Days);
 /// 00xxxxxxxx is the module ID in hexadecimal string and Mx-2x is the module's
 /// part number.
 /// \return null if module ID is not available.
-char *FLEX_ModuleIDGet(void);
+const char *FLEX_ModuleIDGet(void);
 
 /// Returns the string of registration code.
 /// \return null if registration code is not available.
-char *FLEX_RegistrationCodeGet(void);
+const char *FLEX_RegistrationCodeGet(void);
 
 ///@}
 

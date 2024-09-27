@@ -38,8 +38,7 @@ void FLEX_AppInit() {
   FLEX_ExtDigitalIOWakeupModify(WakeupPin, FLEX_EXT_DIGITAL_IO_WAKEUP_ENABLE);
 
   // Registering the Wakeup handler
-  FLEX_ExtDigitalIOWakeupHandlerModify(RunsOnExtDigitalIOWakeup,
-    FLEX_DIGITAL_IO_WAKEUP_HANDLER_MODIFY_ADD);
+  FLEX_ExtDigitalIOWakeupHandlerModify(RunsOnExtDigitalIOWakeup, FLEX_HANDLER_MODIFY_ADD);
 }
 
 //! [CODE]

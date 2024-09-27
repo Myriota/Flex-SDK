@@ -38,7 +38,7 @@ void FLEX_AppInit() {
   }
 
   // Enable pulse counter event
-  FLEX_PulseCounterHandlerModify(RunsOnPulseCounterEvent, FLEX_PCNT_WAKEUP_HANDLER_MODIFY_ADD);
+  FLEX_PulseCounterHandlerModify(RunsOnPulseCounterEvent, FLEX_HANDLER_MODIFY_ADD);
 }
 
 //! [CODE]

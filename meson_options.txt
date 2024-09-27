@@ -3,3 +3,7 @@ option('skip_gnss', type : 'boolean', value : false,
         description: 'Disable GNSS sync task and use default location',
         yield: true
 )
+option('cold_start', type : 'boolean', value : false,
+        description: 'Build the merge applications binary with cold start network information',
+        yield: true
+)

@@ -13,7 +13,7 @@ def main():
     timestamp = 1715129253
     timestamp_bytes = timestamp.to_bytes(4, 'big')
 
-    myriota_sdk_version = '2.0.1-FlexSense'
+    myriota_sdk_version = '2.0.2-FlexSense'
     version_core = myriota_sdk_version.split('-')[0]
     version_core_components = list(map(int, version_core.split('.')))
 
