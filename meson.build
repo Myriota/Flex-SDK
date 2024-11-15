@@ -1,7 +1,7 @@
 project(
   'flex_sdk',
   'c',
-  version: '2.1.0',
+  version: '2.2.0',
   meson_version: '>=0.61.2',
   default_options: [
     'c_std=gnu99',
@@ -28,6 +28,9 @@ system_image = libflex_proj.get_variable('system_image')
 python = find_program('python3')
 subdir('scripts')
 
+flex_sdk_lib_deps = []
+subdir('lib')
+
 ####  End Flex SDK Project Boilerplate ####
 
 # If the project is being included as a subproject create the necessary
@@ -37,7 +40,7 @@ if meson.is_subproject()
   flex_sdk_dep = declare_dependency(
     dependencies: [
       libflex_dep
-    ],
+    ] + flex_sdk_lib_deps,
   )
 else
   # Add your projects source file to this array
@@ -51,7 +54,7 @@ else
     name_suffix: 'elf',
     dependencies: [
       libflex_dep
-    ],
+    ] + flex_sdk_lib_deps,
   )
 
   # Post process the ELF into Myriota desired bin format

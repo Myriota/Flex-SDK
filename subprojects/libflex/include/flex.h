@@ -38,6 +38,11 @@ uint16_t FLEX_VersionMinor(void);
 /// \return the Flex Library Version Patch value.
 uint16_t FLEX_VersionPatch(void);
 
+/// Implement this function to provide a version for your application
+/// which will then be visible over BLE
+/// \return the version formatted as a string
+const char *FLEX_AppVersionString(void);
+
 ///@}
 
 /// @defgroup Analog_Input Analog Input
@@ -242,6 +247,20 @@ typedef enum {
   FLEX_SERIAL_PROTOCOL_RS232,  ///< use RS-232 as the Serial Protocol
 } FLEX_SerialProtocol;
 
+/// Serial Interface - Parity Options
+typedef enum {
+  FLEX_SERIAL_PARITY_NONE,  ///< No parity for serial device
+  FLEX_SERIAL_PARITY_EVEN,  ///< Even parity for serial device
+  FLEX_SERIAL_PARITY_ODD,   ///< Odd parity for serial device
+} FLEX_SerialParity;
+
+/// Serial Interface - Serial Extended Configuration Options
+typedef struct {
+  FLEX_SerialProtocol protocol;  //< Protocol for serial communication
+  uint32_t baud_rate;            //< Baud rate for serial communication
+  FLEX_SerialParity parity;      //< Parity for serial communication
+} FLEX_SerialExOptions;
+
 /// Initialise the selected serial interface (RS-485 or RS-232).
 /// Note that both RS-485 and RS-232 cannot be initialised at the same time.
 /// \param[in] Protocol required protocol for serial communication.
@@ -252,6 +271,15 @@ typedef enum {
 /// \retval -FLEX_ERROR_SERIAL: failed to initialise serial device
 /// \retval -FLEX_ERROR_POWER_OUT: failed to enable power to serial interface
 int FLEX_SerialInit(FLEX_SerialProtocol Protocol, uint32_t BaudRate);
+/// Initialise the selected serial interface (RS-485 or RS-232).
+/// Note that both RS-485 and RS-232 cannot be initialised at the same time.
+/// \param[in] Options extended configuration options for serial protocol.
+/// \return FLEX_SUCCESS (0) if succeeded and < 0 if failed.
+/// \retval -FLEX_ERROR_EALREADY: device already initialised
+/// \retval -FLEX_ERROR_IO_EXPANDER: failed to initialise or configure expander device
+/// \retval -FLEX_ERROR_SERIAL: failed to initialise serial device
+/// \retval -FLEX_ERROR_POWER_OUT: failed to enable power to serial interface
+int FLEX_SerialInitEx(const FLEX_SerialExOptions Options);
 /// Write to the serial interface synchronously.
 /// \param[in] Tx pointer to the transmit buffer to be sent.
 /// \param[in] Length length of data to be sent.
@@ -280,8 +308,10 @@ typedef enum {
   FLEX_PCNT_DEFAULT_OPTIONS = 0,    ///< default option
   FLEX_PCNT_EDGE_FALLING = 1 << 0,  ///< count on falling edge, default rising edge
   FLEX_PCNT_DEBOUNCE_DISABLE =
-    1 << 1,                   ///< disable hardware debouncing, default enabled for about 160us
-  FLEX_PCNT_PULL_UP = 1 << 2  ///< enable pull-up, default pull-down
+    1 << 1,  ///< disable hardware debouncing, default enabled for about 160us
+  FLEX_PCNT_PULL_UP
+    __attribute__((deprecated)),  ///< Flag has been deprecated the FlexSenses pulse counter
+                                  ///< internal pull up/down state is handled internally.
 } FLEX_PulseCounterOption;
 
 /// Initialise the pulse counter and configure the event generation logic.

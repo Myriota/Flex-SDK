@@ -9,7 +9,7 @@ import myriota_download as download
 from dataclasses import dataclass
 
 def license_disclaimer(filename):
-    flex_sdk_version = '2.1.0'
+    flex_sdk_version = '2.2.0'
     print('==================================== License Disclaimer ====================================')
     print(f'{filename} for Flex SDK {flex_sdk_version} has been downloaded.')
     print('This file and the related binary are licensed under the Permissive Binary License, Version 1.0 (the "License"); you may not use these files except in compliance with the License.')
@@ -106,7 +106,7 @@ def check_checksum(filename, output_directory):
 def main(argv=None):
     subprojects_directory = get_subprojects_directory()
 
-    system_image = 'system_image-2.0.2-FlexSense.bin'
+    system_image = 'system_image-2.0.3-FlexSense.bin'
     system_image_directory = os.path.join(subprojects_directory, 'libflex', 'system_image')
     make_directory(system_image_directory)
 
@@ -118,7 +118,7 @@ def main(argv=None):
     else:
         license_disclaimer(system_image)
 
-    libflex = 'libflex-v1.3.1.a'
+    libflex = 'libflex-v1.4.0.a'
     libflex_directory =  os.path.join(subprojects_directory, 'libflex', 'lib')
     make_directory(libflex_directory)
 

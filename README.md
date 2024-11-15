@@ -6,18 +6,38 @@ bi-directional, direct-to-orbit (D2O) satellite communications. The
 Myriota Flex SDK provides users with the necessary boilerplate
 to get started writing custom application firmware for the Myriota
 FlexSense. See the full docs [here](https://flex-docs.myriota.com/)
+and find the source code [here](https://github.com/Myriota/Flex-SDK).
 
-## Development Environment Setup
+> [!TIP]
+> Source code for reference applications using the Flex SDK can be found
+> [here](https://github.com/Myriota/Flex-Reference-Applications). Pre-built
+> binaries of the reference applications can be found
+> [here](https://devicemanager.myriota.com/binaries).
+> N.B. These reference applications should be used for lab testing
+> only and are not suitable for production environments.
 
-Myriota currently only supports building the Flex SDK on a
-system running Ubuntu 22.04 or using a
+### Building applications
+
+The Flex SDK currently supports building applications on Ubuntu 22.04. Other
+platforms can be supported through the use of
 [DevContainer](https://code.visualstudio.com/docs/devcontainers/containers)
-from within [VSCode](https://code.visualstudio.com/). Myriota supports
-programming of the FlexSense from any version of Linux, Windows and Mac
-that support the installation of the 'python3.10' and it's corresponding
-version of 'pip'.
+from within [VSCode](https://code.visualstudio.com/) or via
+[Github Codespaces](https://docs.github.com/en/codespaces/overview).
 
-### Setting Up Ubuntu 22.04 For Development
+Detailed setup instructions are outlined in the following sections:
+* [Ubuntu 22.04](#setting-up-ubuntu-2204)
+* [DevContainer on Windows](#setting-up-devcontainer-on-windows)
+* [Github Codespaces](#setting-up-github-codespaces)
+
+### Programming devices
+
+Myriota supports programming of the FlexSense from any version of Linux,
+Windows and Mac that support the installation of the 'python3.10' and it's
+corresponding version of 'pip'.
+
+## Build Environment Setup
+
+### Setting up Ubuntu 22.04
 
 #### Install packages
 
@@ -59,7 +79,7 @@ sudo ./scripts/install_arm_toolchain.sh
 
 > [!IMPORTANT]
 > You must update your `PATH` variable to to include the toolchain. i.e.
-> Add `export PATH="${PATH}:/opt/gcc-arm/bin"` to your `~/.profile` or
+> Add `export PATH="${PATH}:/opt/gcc-arm-13_2_1/bin"` to your `~/.profile` or
 > wherever you configure your environment variables for your given
 > shell.
 
@@ -91,37 +111,24 @@ python scripts/download_binaries.py
 > You require valid Myriota Device Manager credentials in order to
 > download the binaries. The script will prompt you to supply them.
 
-### Setting Up Windows For Development
+### Setting Up DevContainer on Windows
 
-To develop on windows you should first install
-[VSCode](https://code.visualstudio.com/). When you open the Flex SDK
- folder in VSCode it should direct you through the steps that
-are requierd to setup your
+To build applications using a DevContainer on Windows you should first install
+[VSCode](https://code.visualstudio.com/). When you open the Flex SDK folder in
+VSCode it should direct you through the steps that are required to setup your
 [DevContainer](https://code.visualstudio.com/docs/devcontainers/containers).
-Once you have the DevContainer open in a terminal you will be able to
-perform the [build instruction](#building-the-user-application).
+Once you have the DevContainer open in a terminal you will be able to perform
+the [build instruction](#building-the-user-application).
 
+### Setting Up Github Codespaces
 
-#### Install Python and Python Requirements
+Codespaces is a cloud development environment provided by Github. Further
+information on how to use Codespaces is available in the
+[Github documentation](https://docs.github.com/en/codespaces/overview).
 
-In order to program the FlexSense on windows you will need to install python
-on your PC.
-
-> [!IMPORTANT]
-> The following commands should be all performed from within a Windows Terminal
-> Shell (CMD or PowerShell).
-
-Install python:
-
-```powershell
-winget install -e --id Python.Python.3.10
-```
-
-Then navigate the Flex SDK projects root directory, and run the following:
-
-```powershell
-pip3 install -r requirements.txt
-```
+> [!TIP]
+> Note that using Codespaces may incur a cost. Refer to the Github
+> documentation for details regarding pricing, storage, and usage.
 
 ## Building The User Application
 
@@ -186,6 +193,11 @@ images:
 > will be developing so update it as you need. If you flash the System
 > Image you must re-flash the User Application.
 
+The instructions below outline how to program the System Image and User
+Application via the command line. Myriota also provides the DeviceAssist GUI
+tool for programming devices. The DeviceAssist tool is available from the
+**Tools** section of the [Myriota Support Site](https://support.myriota.com/).
+
 ### Programming On Linux
 
 The following programming instructions assume your current working directory
@@ -202,6 +214,29 @@ To program the User Application:
 ```
 
 ### Programming On Windows
+
+#### Install Python and Python Requirements
+
+Programming the FlexSense requires Python version 3.10 or greater.
+
+The following instructions can be used to install Python on a Windows platform.
+
+> [!IMPORTANT]
+> The following commands should be all performed from within a Windows Terminal
+> Shell (CMD or PowerShell).
+
+Install python:
+
+```powershell
+winget install -e --id Python.Python.3.10
+```
+
+Then navigate the Flex SDK projects root directory, and run the following:
+
+```powershell
+pip3 install -r requirements.txt
+```
+#### Programming instructions
 
 The following programming instructions assume your current working directory
 is the project root. To program the System Image run:
