@@ -25,6 +25,8 @@
 
 #define APPLICATION_NAME "DFRobot SEN0438 Modbus Driver Application"
 #define MESSAGES_PER_DAY 4
+#define SENSOR_READ_MAX_RETRIES 3
+#define SENSOR_POWER_STABILIZATION_MS 1500
 
 typedef struct {
   uint8_t sequence_number;
@@ -51,16 +53,12 @@ static ApplicationContext application_context = {0};
 
 static int serial_init(void *const ctx) {
   SerialContext *const serial = ctx;
-  FLEX_PowerOutInit(FLEX_POWER_OUT_12V);
-  // Let power out stabilise
-  FLEX_DelayMs(1500);
   return FLEX_SerialInit(serial->protocol, serial->baud_rate);
 }
 
 static void serial_deinit(void *const ctx) {
   (void)ctx;
   FLEX_SerialDeinit();
-  FLEX_PowerOutDeinit();
 }
 
 static ssize_t serial_read(void *const ctx, uint8_t *const buffer, const size_t count) {
@@ -92,7 +90,6 @@ static ssize_t serial_write(void *const ctx, const uint8_t *const buffer, const 
   if (result != FLEX_SUCCESS) {
     return result;
   }
-  FLEX_DelayMs(1000);
   return count;
 }
 
@@ -103,18 +100,33 @@ inline uint16_t merge_i16(const uint8_t hi, const uint8_t low) {
 static void read_temperature_and_humidity(int16_t *const temperature, int16_t *const humidity) {
   const MYRIOTA_ModbusHandle handle = application_context.modbus_handle;
 
+  // Enable power to the sensor
+  int result = FLEX_PowerOutInit(FLEX_POWER_OUT_12V);
+  if (result != FLEX_SUCCESS) {
+    printf("Failed to power sensor: %d\n", result);
+    return;
+  }
+  FLEX_DelayMs(SENSOR_POWER_STABILIZATION_MS);
+
   // NOTE: Enable/disable the Modbus driver in order to conserve power.
   MYRIOTA_ModbusEnable(handle);
 
   uint8_t bytes[4] = {0};
   const MYRIOTA_ModbusDeviceAddress slave = 0x01;
   const MYRIOTA_ModbusDataAddress addr = 0x0000;
-  MYRIOTA_ModbusReadHoldingRegisters(handle, slave, addr, 2, bytes);
 
-  *humidity = merge_i16(bytes[0], bytes[1]);
-  *temperature = merge_i16(bytes[2], bytes[3]);
+  for (uint8_t retries = 0; retries < SENSOR_READ_MAX_RETRIES; ++retries) {
+    result = MYRIOTA_ModbusReadHoldingRegisters(handle, slave, addr, 2, bytes);
+    if (result == MODBUS_SUCCESS) {
+      *humidity = merge_i16(bytes[0], bytes[1]);
+      *temperature = merge_i16(bytes[2], bytes[3]);
+      break;
+    }
+    printf("Sensor Read Failed: %d\n", result);
+  }
 
   MYRIOTA_ModbusDisable(handle);
+  FLEX_PowerOutDeinit();
 }
 
 static time_t send_message(void) {

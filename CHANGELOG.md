@@ -1,5 +1,15 @@
 # Changelog
 
+## Flex SDK Release v2.2.1
+
+* Fix a problem where the Modbus library would crashing when disconnected from
+  sensor.
+
+* Add retries attempts to `read_temperature_and_humidity` in the modbus
+  example.
+
+* Add README for the modbus library.
+
 ## Flex SDK Release v2.2.0
 
 * Add Modbus library to simplify the development of firmware to interface

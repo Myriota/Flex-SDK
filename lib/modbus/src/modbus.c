@@ -305,7 +305,7 @@ static int modbus_transmit(struct modbus_instance *const instance) {
 
   const ssize_t rx_nbytes =
     serial->read(serial->ctx, instance->adu_rx.buffer, MODBUS_ADU_BUFFER_SIZE);
-  if (rx_nbytes < 0) {
+  if (rx_nbytes <= 0) {
     return -MODBUS_ERROR_IO_FAILURE;
   }
   instance->adu_rx.size = rx_nbytes;
