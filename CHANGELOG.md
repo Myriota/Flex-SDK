@@ -1,5 +1,11 @@
 # Changelog
 
+## Flex SDK Release v2.2.2
+
+* Fix remove hard coded time stamp from `bulidkey.py`.
+
+* Add missing Modbus library README.
+
 ## Flex SDK Release v2.2.1
 
 * Fix a problem where the Modbus library would crashing when disconnected from

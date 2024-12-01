@@ -10,7 +10,6 @@ def main():
     args = parser.parse_args()
 
     timestamp = int(time.time())
-    timestamp = 1715129253
     timestamp_bytes = timestamp.to_bytes(4, 'big')
 
     myriota_sdk_version = '2.0.3-FlexSense'

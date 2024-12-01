@@ -9,7 +9,7 @@ import myriota_download as download
 from dataclasses import dataclass
 
 def license_disclaimer(filename):
-    flex_sdk_version = '2.2.0'
+    flex_sdk_version = '2.2.2'
     print('==================================== License Disclaimer ====================================')
     print(f'{filename} for Flex SDK {flex_sdk_version} has been downloaded.')
     print('This file and the related binary are licensed under the Permissive Binary License, Version 1.0 (the "License"); you may not use these files except in compliance with the License.')
