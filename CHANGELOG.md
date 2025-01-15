@@ -1,5 +1,13 @@
 # Changelog
 
+## Flex SDK Release v2.2.3
+
+* Fix a problem in the Modbus example where the sequence number would print
+  4294967295 instead of 255.
+
+* Fix a bug the Modbus library where `modbus_read` would cause a buffer
+  overflow.
+
 ## Flex SDK Release v2.2.2
 
 * Fix remove hard coded time stamp from `bulidkey.py`.

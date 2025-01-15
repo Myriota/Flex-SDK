@@ -44,6 +44,7 @@ typedef enum {
   MODBUS_ERROR_RESPONSE_FROM_WRONG_SLAVE_ADDRESS,
   MODBUS_ERROR_IO_FAILURE,
   MODBUS_ERROR_BAD_STATE,
+  MODBUS_ERROR_OVERFLOW,
 } MYRIOTA_ModbusErrors;
 
 /** Modbus driver instance handle type. */

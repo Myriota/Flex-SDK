@@ -348,10 +348,14 @@ static int modbus_read(const MYRIOTA_ModbusHandle handle,
     return parser_result;
   }
 
-  // NOTE/TODO: validate nbytes?
-  const uint8_t nbytes = (is_read_register(function_code))
-                           ? protocol_data_unit_unpack_u8(&parser) * 2
-                           : protocol_data_unit_unpack_u8(&parser);
+  const uint8_t nbytes = protocol_data_unit_unpack_u8(&parser);
+  const bool read_register_overflow = is_read_register(function_code) && (nbytes > count * 2);
+  const bool read_coil_overflow =
+    !is_read_register(function_code) && (nbytes > (count + 8 - 1) / 8);
+  if (read_register_overflow || read_coil_overflow) {
+    return -MODBUS_ERROR_OVERFLOW;
+  }
+
   memcpy(bytes, parser.ptr, nbytes);
 
   return MODBUS_SUCCESS;

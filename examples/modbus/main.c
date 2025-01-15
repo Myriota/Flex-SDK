@@ -151,7 +151,7 @@ static time_t send_message(void) {
   // Schedule messages for satellite transmission
   FLEX_MessageSchedule((const uint8_t *const)&message, sizeof(message));
   printf("Scheduled message: \n");
-  printf("  sequence_number: %u\n", sequence_number - 1);
+  printf("  sequence_number: %u\n", message.sequence_number);
   printf("  time: %lu\n", message.time);
   printf("  latitude: %ld\n", message.latitude);
   printf("  longitude: %ld\n", message.longitude);
