@@ -1,7 +1,7 @@
 project(
   'flex_sdk',
   'c',
-  version: '2.2.3',
+  version: '2.2.4',
   meson_version: '>=0.61.2',
   default_options: [
     'c_std=gnu99',

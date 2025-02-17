@@ -1,5 +1,11 @@
 # Changelog
 
+## Flex SDK Release v2.2.4
+
+* Fix issue where `FLEX_SerialDeinit(void)` was not correctly turning off RS232
+  and RS485 power. This ensures that devices using RS232 and RS485 do not
+  consume power in sleep mode.
+
 ## Flex SDK Release v2.2.3
 
 * Fix a problem in the Modbus example where the sequence number would print

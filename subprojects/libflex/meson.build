@@ -1,6 +1,6 @@
 project('libflex',
   'c',
-  version: '1.4.0',
+  version: '1.4.1',
   meson_version: '>=0.61.2'
 )
 
