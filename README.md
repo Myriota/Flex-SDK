@@ -78,7 +78,7 @@ sudo ./scripts/install_arm_toolchain.sh
 ```
 
 > [!IMPORTANT]
-> You must update your `PATH` variable to to include the toolchain. i.e.
+> You must update your `PATH` variable to include the toolchain. i.e.
 > Add `export PATH="${PATH}:/opt/gcc-arm-13_2_1/bin"` to your `~/.profile` or
 > wherever you configure your environment variables for your given
 > shell.
@@ -157,7 +157,7 @@ meson -Dskip_gnss=true --cross-file ./flex-crossfile.ini build
 
 > [!IMPORTANT]
 > During production builds, please validate that the `skip_gnss` option is
-> disabled (set to false), to ensure correct operation of the FlexSense device.
+> disabled (set to false), to ensure the correct operation of the FlexSense device.
 
 ### 2. Build
 Then to perform the build simply run the command:
@@ -222,7 +222,7 @@ Programming the FlexSense requires Python version 3.10 or greater.
 The following instructions can be used to install Python on a Windows platform.
 
 > [!IMPORTANT]
-> The following commands should be all performed from within a Windows Terminal
+> The following commands should all be performed from within a Windows Terminal
 > Shell (CMD or PowerShell).
 
 Install python:

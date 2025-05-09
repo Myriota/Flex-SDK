@@ -1,5 +1,13 @@
 # Changelog
 
+## Flex SDK Release v2.3.0
+
+* Adds support to transmit messages larger than 20 bytes.
+* Adds `FLEX_MessageSlotsFree` API to return the number of messages that can be scheduled in the message queue
+* Allow user applications to control the onboard blue LED using `FLEX_LEDBlueStateSet`.
+* Adds Serial interface configuration options for message stopbits and databits.
+* Fixed an issue with Serial interface parity settings.
+
 ## Flex SDK Release v2.2.4
 
 * Fix issue where `FLEX_SerialDeinit(void)` was not correctly turning off RS232

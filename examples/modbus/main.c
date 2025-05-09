@@ -36,7 +36,6 @@ typedef struct {
   int16_t temperature;
   int16_t humidity;
 } __attribute__((packed)) Message;
-_Static_assert(sizeof(Message) <= FLEX_MAX_MESSAGE_SIZE, "can't exceed the max message size");
 
 typedef struct {
   FLEX_SerialProtocol protocol;

@@ -33,10 +33,8 @@
 typedef struct {
   uint16_t sequence_number;
   uint32_t time;
-  // ADD YOUR PARAMETERS HERE (MAX 20 BYTES)
+  // ADD YOUR PARAMETERS HERE
 } __attribute__((packed)) message;
-
-_Static_assert(sizeof(message) <= FLEX_MAX_MESSAGE_SIZE, "can't exceed the max message size");
 
 static time_t SendMessage(void) {
   static uint16_t sequence_number = 0;

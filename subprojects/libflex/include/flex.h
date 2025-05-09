@@ -59,12 +59,12 @@ typedef enum {
 /// \param[in] InputMode the operation mode selected from \p FLEX_AnalogInputMode.
 /// \return FLEX_SUCCESS (0) if succeeded and < 0 if failed.
 /// \retval -FLEX_ERROR_IO_EXPANDER: failed to initialise i/o expander device.
-/// \retval -FLEX_ERROR_POWER_OUT: failed to enable power to analog input interface.
+/// \retval -FLEX_ERROR_POWER_OUT: failed to enable power to the analog input interface.
 int FLEX_AnalogInputInit(const FLEX_AnalogInputMode InputMode);
 /// De-initialise the Analog Input interface.
 /// \return FLEX_SUCCESS (0) if succeeded and < 0 if failed.
 /// \retval -FLEX_ERROR_IO_EXPANDER: failed to de-initialise i/o expander device.
-/// \retval -FLEX_ERROR_POWER_OUT: failed to disable power to analog input interface.
+/// \retval -FLEX_ERROR_POWER_OUT: failed to disable power to the analog input interface.
 int FLEX_AnalogInputDeinit(void);
 /// Get the Current reading in micro-amps from the Analog Input interface.
 /// The Analog Input interface needs to be initialised in Current mode
@@ -131,6 +131,12 @@ typedef enum {
 /// \retval -FLEX_ERROR_IO_EXPANDER: failed to initialise or configure expander device
 int FLEX_LEDGreenStateSet(const FLEX_LEDState LEDState);
 
+/// Change the state of the Blue LED.
+/// \param[in] LEDState the required LED state selected from \p FLEX_LEDState.
+/// \return FLEX_SUCCESS (0) if succeeded and < 0 if failed.
+/// \retval -FLEX_ERROR_IO_EXPANDER: failed to initialise or configure expander device
+int FLEX_LEDBlueStateSet(const FLEX_LEDState LEDState);
+
 ///@}
 
 /// @defgroup Handler Modify Actions
@@ -161,7 +167,7 @@ typedef enum {
   FLEX_EXT_DIGITAL_IO_HIGH      ///< Digital I/O level High
 } FLEX_DigitalIOLevel;
 
-/// Set the level of an external Digital I/O pin High or Low.
+/// Set the level of an external Digital I/O pin to High or Low.
 /// \param[in] PinNum the external Digital I/O pin number.
 /// \param[in] Level the required Digital I/O level for the selected pin.
 /// \return FLEX_SUCCESS (0) if succeeded and < 0 if failed.
@@ -182,7 +188,7 @@ typedef enum {
   FLEX_EXT_DIGITAL_IO_WAKEUP_DISABLE,  ///< action to disable wakeup for an External Digital I/O pin
 } FLEX_ExtDigitalIOWakeupModifyAction;
 
-/// Enable/Disable an External Digital IO with wakeup capability for next wakeup.
+/// Enable/Disable an External Digital IO with wakeup capability for the next wakeup.
 /// This wakeups on a falling edge of the External Digital IO.
 /// \param[in] PinNum the external Digital I/O pin number.
 /// \param[in] Action Enable/Disable wakeup for the selected Digital I/O pin.
@@ -200,7 +206,7 @@ typedef void (*FLEX_IOWakeupHandler)(void);
 /// \param[in] Action Add/Remove the input IO wakeup handler.
 /// \return FLEX_SUCCESS (0) if succeeded and < 0 if failed.
 /// \retval -FLEX_ERROR_EALREADY: handler already exists, remove first
-/// \retval -FLEX_ERROR_EINVAL: attempt to remove non-existant handler
+/// \retval -FLEX_ERROR_EINVAL: attempt to remove non-existent handler
 int FLEX_ExtDigitalIOWakeupHandlerModify(const FLEX_IOWakeupHandler Handler,
   const FLEX_HandlerModifyAction Action);
 
@@ -210,7 +216,7 @@ int FLEX_ExtDigitalIOWakeupHandlerModify(const FLEX_IOWakeupHandler Handler,
 /// Interact with external i2c peripheral devices on the FlexSense board.
 ///@{
 
-/// Write to a an i2c device at a given address.
+/// Write to an i2c device at a given address.
 /// \param[in] Address the peripheral device address.
 /// \param[in] TxData pointer to the TX buffer containing registers address and command.
 /// \param[in] TxLength length of data to be sent.
@@ -221,7 +227,7 @@ int FLEX_ExtDigitalIOWakeupHandlerModify(const FLEX_IOWakeupHandler Handler,
 /// \retval -FLEX_ERROR_I2C: error initialising i2c bus
 int FLEX_ExtI2CWrite(int Address, const uint8_t *const TxData, uint16_t TxLength);
 
-/// Write to a an i2c device at a given address and then read the response.
+/// Write to an i2c device at a given address and then read the response.
 /// \param[in] Address the peripheral device address.
 /// \param[in] TxData pointer to TX buffer containing registers address and command.
 /// \param[in] TxLength length of data to be sent.
@@ -254,11 +260,27 @@ typedef enum {
   FLEX_SERIAL_PARITY_ODD,   ///< Odd parity for serial device
 } FLEX_SerialParity;
 
+/// Serial Interface - Databits Options
+typedef enum {
+  FLEX_SERIAL_DATABITS_EIGHT,  ///< Eight databits for serial device
+  FLEX_SERIAL_DATABITS_NINE,   ///< Nine databits for serial device
+} FLEX_SerialDatabits;
+
+/// Serial Interface - Stopbits Options
+typedef enum {
+  FLEX_SERIAL_STOPBITS_ONE,         ///< 1 stopbits for serial device
+  FLEX_SERIAL_STOPBITS_HALF,        ///< 0.5 stopbits for serial device
+  FLEX_SERIAL_STOPBITS_ONEANDHALF,  ///< 1.5 stopbits for serial device
+  FLEX_SERIAL_STOPBITS_TWO,         ///< 2 stopbits for serial device
+} FLEX_SerialStopbits;
+
 /// Serial Interface - Serial Extended Configuration Options
 typedef struct {
-  FLEX_SerialProtocol protocol;  //< Protocol for serial communication
-  uint32_t baud_rate;            //< Baud rate for serial communication
-  FLEX_SerialParity parity;      //< Parity for serial communication
+  FLEX_SerialProtocol protocol;  ///< Protocol for serial communication
+  uint32_t baud_rate;            ///< Baud rate for serial communication
+  FLEX_SerialParity parity;      ///< Parity for serial communication
+  FLEX_SerialDatabits databits;  ///< Databits for serial communication
+  FLEX_SerialStopbits stopbits;  ///< Stopbits for serial communication
 } FLEX_SerialExOptions;
 
 /// Initialise the selected serial interface (RS-485 or RS-232).
@@ -286,7 +308,7 @@ int FLEX_SerialInitEx(const FLEX_SerialExOptions Options);
 /// \return FLEX_SUCCESS (0) if succeeded and < 0 if failed.
 /// \retval -FLEX_ERROR_NOT_INIT: device not initialised
 int FLEX_SerialWrite(const uint8_t *Tx, size_t Length);
-/// Read from input buffer of the serial interface. The buffer size is 50 bytes.
+/// Read from the input buffer of the serial interface. The buffer size is 50 bytes.
 /// \param[out] Rx pointer to the receive buffer.
 /// \param[in] Length length of the receive buffer.
 /// \return number of bytes read back or < 0 if read failed.
@@ -315,10 +337,10 @@ typedef enum {
 } FLEX_PulseCounterOption;
 
 /// Initialise the pulse counter and configure the event generation logic.
-/// Event is generated when pulse count hits multiple of Limit. Limit can be set
+/// Event is generated when pulse count hits a multiple of Limit. Limit can be set
 /// to 0 to 256, or multiple of 256. Set Limit to 0 to disable event generation.
-/// Options are used to configure the pulse counter. Set option to 0 to
-/// count on rising edge, and enable debouncing.
+/// Options are used to configure the pulse counter. Set Options to 0 to
+/// count on the rising edge, and enable debouncing.
 /// \param[in] Limit maximum value to count to before overflow occurs and reset counter to 0.
 /// \param[in] Options configuration options selected from \p FLEX_PulseCounterOption.
 /// \return FLEX_SUCCESS (0) if succeeded and < 0 if failed.
@@ -332,13 +354,13 @@ void FLEX_PulseCounterDeinit(void);
 /// Wakeup Handler Function Pointer Declaration.
 typedef void (*FLEX_PCNTWakeupHandler)(void);
 
-/// Add or remove a wakeup handler that will be called when pulse counter is
+/// Add or remove a wakeup handler that will be called when the pulse counter is
 /// triggered.
 /// \param[in] Handler function pointer to the Pulse Count wakeup handler.
 /// \param[in] Action Add/Remove the input Pulse Count wakeup handler.
 /// \return FLEX_SUCCESS (0) if succeeded and < 0 if failed.
 /// \retval -FLEX_ERROR_EALREADY: handler already exists, remove first
-/// \retval -FLEX_ERROR_EINVAL: attempt to remove non-existant handler
+/// \retval -FLEX_ERROR_EINVAL: attempt to remove non-existent handler
 int FLEX_PulseCounterHandlerModify(const FLEX_PCNTWakeupHandler Handler,
   const FLEX_HandlerModifyAction Action);
 
@@ -364,7 +386,7 @@ void FLEX_Sleep(const uint32_t Sec);
 
 /// @defgroup Time_Location Time and Location
 /// GNSS interface on the FlexSense board.
-/// \subsection sync_job_note GNSS Location and Time Synchronisation Job
+/// \section sync_job_note GNSS Location and Time Synchronisation Job
 /// The system in the background schedules a periodic task to synchronise
 /// the system location and time, with the GNSS location and time by calling
 /// the FLEX_GNSSFix() function.
@@ -376,32 +398,32 @@ void FLEX_Sleep(const uint32_t Sec);
 /// feature and warning messages will be printed on the debug console.
 /// During production builds, please validate that the \p skip_gnss option is
 /// disabled, to ensure correct operation of the FlexSense device.
-/// View section "Building the User Application" for more information regarding
+/// View the section "Building the User Application" for more information regarding
 /// the \p skip_gnss option.
 ///@{
 
 /// Performs a GNSS FIX. On success it outputs the fixed GNSS
-/// latitude, longitude, and time values. It also will updates the
+/// latitude, longitude, and time values. It will also update the
 /// systems real-time clock and latitude and longitude values.
 /// \param[out] Lat the recorded latitude.
 /// \param[out] Lon the recorded longitude.
-/// \param[out] Time the recored fix time.
+/// \param[out] Time the recorded fix time.
 /// \return FLEX_SUCCESS (0) if succeeded and < 0 if failed.
-/// \retval -FLEX_ERROR_GNSS: error on gnss device, failed to read
+/// \retval -FLEX_ERROR_GNSS: error on GNSS device, failed to read
 /// \retval -FLEX_ERROR_POWER_OUT: failed to enable power to module
 int FLEX_GNSSFix(int32_t *const Lat, int32_t *const Lon, time_t *const Time);
 
 /// Returns true if the system has obtained a valid time and location fix.
 bool FLEX_GNSSHasValidFix(void);
 
-/// Gets the the latitude, longitude, and time of the last GNSS fix.
+/// Gets the latitude, longitude, and time of the last GNSS fix.
 /// \param[out] LastLatitude the last GNSS fixes latitude in degrees multiplied by 1e7.
 /// \param[out] LastLongitude the last GNSS fixes longitude in degrees multiplied by 1e7.
-/// \param[out] LastFixTime the time of the last GNSS fix as a epoch time.
+/// \param[out] LastFixTime the time of the last GNSS fix as an epoch time.
 void FLEX_LastLocationAndLastFixTime(int32_t *const LastLatitude, int32_t *const LastLongitude,
   time_t *const LastFixTime);
 
-/// Get current epoch time
+/// Get the current epoch time
 time_t FLEX_TimeGet(void);
 
 ///@}
@@ -410,24 +432,21 @@ time_t FLEX_TimeGet(void);
 /// Build and control user messages for the application.
 ///@{
 
-/// Maximum size in bytes of individual transmit message.
-#define FLEX_MAX_MESSAGE_SIZE 20
-/// Schedule a message of bytes of given size for transmission.
-/// The maximum message size is given by #FLEX_MAX_MESSAGE_SIZE.
-/// Regardless of the value of \p MessageSize the number bytes
-/// consumed is FLEX_MAX_MESSAGE_SIZE. Calling ScheduleMessage when the
-/// number of bytes returned by MessageBytesFree is less than FLEX_MAX_MESSAGE_SIZE
-/// replaces an existing message in the queue. This may result in dropped
-/// messages. See also MessageBytesFree.
+/// Calling ScheduleMessage when the number of slots returned by
+/// MessageSlotsFree is 0 replaces an existing message in the queue. This may
+/// result in dropped messages. See also MessageSlotsFree.
 /// \param[in] Message pointer to the message to be scheduled.
 /// \param[in] MessageSize length of the message.
 /// \return FLEX_SUCCESS (0) if succeeded and < 0 if failed.
 int FLEX_MessageSchedule(const uint8_t *const Message, const size_t MessageSize);
-/// Returns number of bytes remaining in internal queue, that is,
+/// Returns the number of available slots in the internal queue,
+/// that is, the number of messages that can be scheduled with ScheduleMessage.
+int FLEX_MessageSlotsFree(void);
+/// Returns the number of bytes remaining in the internal queue, that is,
 /// the number of bytes that can be scheduled with ScheduleMessage.
-/// \return number of bytes remaining in internal queue.
+/// \return number of bytes remaining in the internal queue.
 size_t FLEX_MessageBytesFree(void);
-/// Save all messages in the message queue to module's persistent storage.
+/// Save all messages in the message queue to the module's persistent storage.
 /// Saved messages will be transmitted after reset.
 void FLEX_MessageSave(void);
 /// Clear all messages in the message queue.
@@ -440,7 +459,7 @@ void FLEX_MessageQueueClear(void);
 
 /// Message Receive Handler Function Pointer Declaration.
 /// \param message A pointer to the message if size is greater than 0 else NULL.
-/// \param size The length of received message.
+/// \param size The length of the received message.
 typedef void (*FLEX_MessageReceiveHandler)(uint8_t *const message, const int size);
 
 /// Add or remove a handler that will be called when a message is received.
@@ -448,7 +467,7 @@ typedef void (*FLEX_MessageReceiveHandler)(uint8_t *const message, const int siz
 /// \param[in] Action Add/Remove the input Message Receive handler.
 /// \return FLEX_SUCCESS (0) if succeeded and < 0 if failed.
 /// \retval -FLEX_ERROR_EALREADY: handler already exists, remove first
-/// \retval -FLEX_ERROR_EINVAL: attempt to remove non-existant handler
+/// \retval -FLEX_ERROR_EINVAL: attempt to remove non-existent handler
 int FLEX_MessageReceiveHandlerModify(const FLEX_MessageReceiveHandler Handler,
   const FLEX_HandlerModifyAction Action);
 
@@ -465,7 +484,7 @@ typedef time_t (*FLEX_ScheduledJob)(void);
 /// \param[in] Job function pointer to the job to be scheduled.
 /// \param[in] Time time to run the job.
 /// \return FLEX_SUCCESS (0) if succeeded and < 0 if failed.
-/// \retval -FLEX_ERROR_ENOMEM:  if maximum number of jobs reached.
+/// \retval -FLEX_ERROR_ENOMEM:  if the maximum number of jobs reached.
 int FLEX_JobSchedule(const FLEX_ScheduledJob Job, const time_t Time);
 
 /// Use this function to schedule a job to run immediately,
@@ -473,29 +492,29 @@ int FLEX_JobSchedule(const FLEX_ScheduledJob Job, const time_t Time);
 /// at which the job should next run.
 /// \return time at which the job will next run.
 time_t FLEX_ASAP(void);
-/// Use this function to stop a job being scheduled again,
+/// Use this function to stop a job from being scheduled again,
 /// by assigning the return value of this function to the time value
 /// at which the job should next run.
 /// \return time at which the job will next run.
 time_t FLEX_Never(void);
-/// Use this function to set time value at which a job will run next.
+/// Use this function to set the time value at which a job will run next.
 /// The job will run \p Secs after the current run.
 /// \param[in] Secs seconds after to run the job next.
 /// \return time at which the job will next run.
 time_t FLEX_SecondsFromNow(const unsigned Secs);
-/// Use this function to set time value at which a job will run next.
+/// Use this function to set the time value at which a job will run next.
 /// The job will run \p Mins after the current run.
 /// \param[in] Mins minutes after to run the job next.
 /// \return time at which the job will next run.
 time_t FLEX_MinutesFromNow(const unsigned Mins);
-/// Use this function to set time value at which a job will run next.
+/// Use this function to set the time value at which a job will run next.
 /// The job will run \p Hours after the current run.
 /// \param[in] Hours hours after to run the job next.
 /// \return time at which the job will next run.
 time_t FLEX_HoursFromNow(const unsigned Hours);
-/// Use this function to set time value at which a job will run next.
+/// Use this function to set the time value at which a job will run next.
 /// The job will run \p Days after the current run.
-/// \param[in] Days days after to the run the job next.
+/// \param[in] Days days after to run the job next.
 /// \return time at which the job will next run.
 time_t FLEX_DaysFromNow(const unsigned Days);
 
@@ -511,7 +530,7 @@ time_t FLEX_DaysFromNow(const unsigned Days);
 /// \return null if module ID is not available.
 const char *FLEX_ModuleIDGet(void);
 
-/// Returns the string of registration code.
+/// Returns the string of the registration code.
 /// \return null if registration code is not available.
 const char *FLEX_RegistrationCodeGet(void);
 
@@ -534,7 +553,7 @@ int FLEX_TemperatureGet(float *const Temperature);
 
 /// Performs a Hardware test for the FlexSense. The test enables the 5V power
 /// on the external connector, and blinks the boards led from green to blue.
-/// The test block all other board functionality until push button pressed.
+/// The test blocks all other board functionality until the push button is pressed.
 /// \return FLEX_SUCCESS (0) if succeeded and < 0 if failed.
 /// \retval -FLEX_ERROR_POWER_OUT: unable to initialise power out or LED
 /// \retval -FLEX_ERROR_BUTTON: error enabling or disabling push button

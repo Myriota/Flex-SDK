@@ -120,7 +120,7 @@ typedef enum {
 
 /** Initialization options for Modbus driver */
 typedef struct {
-  /** The Modbus driver's framing mode*/
+  /** The Modbus driver's framing mode */
   MYRIOTA_ModbusFramingMode framing_mode;
   /** The Modbus driver's serial interface */
   MYRIOTA_ModbusSerialInterface serial_interface;
@@ -134,7 +134,7 @@ typedef struct {
  */
 MYRIOTA_ModbusHandle MYRIOTA_ModbusInit(const MYRIOTA_ModbusInitOptions options);
 
-/*
+/**
  * De-initializes a Modbus driver instance.
  *
  * \param[in] handle The handle for the Modbus driver to de-initialize.
@@ -193,7 +193,7 @@ void MYRIOTA_ModbusBytesSetBit(uint8_t *const bytes, const size_t count, const u
 void MYRIOTA_ModbusBytesGetBit(const uint8_t *const bytes, const size_t count,
   const uint8_t bit_index, bool *const value);
 
-/*
+/**
  * Read the values of a list of consecutive coils.
  *
  * \param[in] handle The handle for the Modbus driver to read from.
@@ -208,7 +208,7 @@ int MYRIOTA_ModbusReadCoils(const MYRIOTA_ModbusHandle handle,
   const MYRIOTA_ModbusDeviceAddress slave, const MYRIOTA_ModbusDataAddress addr, const size_t count,
   uint8_t *const bytes);
 
-/*
+/**
  * Read the values of a list of consecutive discrete inputs.
  *
  * \param[in] handle The handle for the Modbus driver to read from.
@@ -223,7 +223,7 @@ int MYRIOTA_ModbusReadDiscreteInputs(const MYRIOTA_ModbusHandle handle,
   const MYRIOTA_ModbusDeviceAddress slave, const MYRIOTA_ModbusDataAddress addr, const size_t count,
   uint8_t *const bytes);
 
-/*
+/**
  * Read the values of a list of consecutive holding registers.
  *
  * \param[in] handle The handle for the Modbus driver to read from.
@@ -238,7 +238,7 @@ int MYRIOTA_ModbusReadHoldingRegisters(const MYRIOTA_ModbusHandle handle,
   const MYRIOTA_ModbusDeviceAddress slave, const MYRIOTA_ModbusDataAddress addr, const size_t count,
   uint8_t *const bytes);
 
-/*
+/**
  * Read the values of a list of consecutive input registers.
  *
  * \param[in] handle The handle for the Modbus driver to read from.
@@ -253,7 +253,7 @@ int MYRIOTA_ModbusReadInputRegisters(const MYRIOTA_ModbusHandle handle,
   const MYRIOTA_ModbusDeviceAddress slave, const MYRIOTA_ModbusDataAddress addr, const size_t count,
   uint8_t *const bytes);
 
-/*
+/**
  * Write a value to a coil.
  *
  * \param[in] handle The handle for the Modbus driver to write to.
@@ -267,7 +267,7 @@ int MYRIOTA_ModbusWriteCoil(const MYRIOTA_ModbusHandle handle,
   const MYRIOTA_ModbusDeviceAddress slave, const MYRIOTA_ModbusDataAddress addr,
   const uint16_t word);
 
-/*
+/**
  * Write a value to a holding register.
  *
  * \param[in] handle The handle for the Modbus driver to write to.
@@ -280,7 +280,7 @@ int MYRIOTA_ModbusWriteHoldingRegister(const MYRIOTA_ModbusHandle handle,
   const MYRIOTA_ModbusDeviceAddress slave, const MYRIOTA_ModbusDataAddress addr,
   const uint16_t word);
 
-/*
+/**
  * Writes values to a list of consecutive coils.
  *
  * \param[in] handle The handle for the Modbus driver to write from.
@@ -295,7 +295,7 @@ int MYRIOTA_ModbusWriteCoils(const MYRIOTA_ModbusHandle handle,
   const MYRIOTA_ModbusDeviceAddress slave, const MYRIOTA_ModbusDataAddress addr, const size_t count,
   const uint8_t *const bytes);
 
-/*
+/**
  * Write values to a list of consecutive holding registers.
  *
  * \param[in] handle The handle for the Modbus driver to write from.
