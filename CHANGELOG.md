@@ -1,5 +1,9 @@
 # Changelog
 
+## Flex SDK Release v2.3.1
+
+* Fix issue where the default serial configuration was set to nine databits.
+
 ## Flex SDK Release v2.3.0
 
 * Adds support to transmit messages larger than 20 bytes.
